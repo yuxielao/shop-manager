@@ -228,6 +228,27 @@ td a:hover { text-decoration: underline; }
 }
 
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-row-3 { grid-template-columns: 1fr 1fr 1fr; }
+.form-row-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+.form-section-title {
+  font-size: 14px; font-weight: 600; color: var(--primary);
+  margin: 8px 0 12px; padding-bottom: 8px;
+  border-bottom: 1px dashed var(--border);
+}
+
+.form-select, .filter-select {
+  width: 100%; padding: 10px 14px;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  font-size: 14px; outline: none; background: #fff;
+  transition: border-color .2s, box-shadow .2s;
+}
+.form-select:focus, .filter-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79,70,229,.1);
+}
+
+.filter-select { width: auto; min-width: 120px; }
 
 /* ====== 详情 ====== */
 .detail-grid {
@@ -264,6 +285,43 @@ td a:hover { text-decoration: underline; }
   border-radius: var(--radius-sm); font-size: 13px; outline: none;
 }
 .inline-form input:focus { border-color: var(--primary); }
+
+/* ====== 变体卡片 ====== */
+.variant-card {
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 14px; margin-bottom: 10px;
+}
+.variant-header {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 10px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.variant-prices {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+}
+.vp-item { display: flex; flex-direction: column; gap: 2px; font-size: 13px; }
+.vp-item .vp-label { font-size: 11px; color: var(--text-secondary); }
+
+.variant-add-form {
+  margin-top: 12px; padding-top: 12px;
+  border-top: 1px dashed var(--border);
+}
+
+.cat-name-input {
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 6px 10px; font-size: 14px; width: 100%; outline: none;
+}
+.cat-name-input:focus { border-color: var(--primary); }
+
+/* ====== 分类标签 ====== */
+.cat-tag {
+  display: inline-block;
+  background: #eef2ff; color: var(--primary);
+  padding: 2px 10px; border-radius: 12px;
+  font-size: 12px; font-weight: 500;
+}
 
 /* ====== 搜索 ====== */
 .search-results {
@@ -338,6 +396,7 @@ td a:hover { text-decoration: underline; }
   .page-header h2 { font-size: 18px; }
   .toolbar { flex-direction: column; }
   .form-row { grid-template-columns: 1fr; }
+  .form-row-3, .form-row-4 { grid-template-columns: 1fr 1fr; }
   .detail-grid { grid-template-columns: 1fr; }
   .stats-grid { grid-template-columns: 1fr 1fr; }
 

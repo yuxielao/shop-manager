@@ -17,6 +17,7 @@
     <nav class="top-tabs">
       <button class="tab active" data-tab="products">&#x1F4E6; 商品列表</button>
       <button class="tab" data-tab="add">&#x2795; 添加商品</button>
+      <button class="tab" data-tab="categories">&#x1F4C2; 分类管理</button>
       <button class="tab" data-tab="stats">&#x1F4CA; 统计面板</button>
     </nav>
     <label class="toggle-profit-label">
@@ -35,6 +36,9 @@
         <span class="search-icon">&#x1F50D;</span>
         <input type="text" id="search-input" placeholder="搜索商品名或别名...">
       </div>
+      <select id="filter-category" class="filter-select">
+        <option value="">全部分类</option>
+      </select>
       <button id="search-btn" class="btn-primary">搜索</button>
     </div>
 
@@ -52,9 +56,10 @@
           <tr>
             <th>ID</th>
             <th>商品名称</th>
-            <th>零售价</th>
-            <th>最低批发价</th>
+            <th>分类</th>
+            <th>最低进货价</th>
             <th>利润</th>
+            <th>变体</th>
             <th>别名</th>
             <th>更新时间</th>
             <th>操作</th>
@@ -70,32 +75,64 @@
   <section id="tab-add" class="tab-content">
     <div class="page-header"><h2>添加新商品</h2></div>
     <form id="add-product-form" class="card-form">
-      <div class="form-group">
-        <label>商品名称</label>
-        <input type="text" id="add-name" required placeholder="例如：可口可乐">
-      </div>
       <div class="form-row">
         <div class="form-group">
-          <label>零售价 (元)</label>
-          <input type="number" id="add-retail-price" step="0.01" placeholder="0.00">
+          <label>商品名称</label>
+          <input type="text" id="add-name" required placeholder="例如：可口可乐">
         </div>
         <div class="form-group">
-          <label>批发价 (元)</label>
+          <label>分类</label>
+          <select id="add-category" class="form-select"></select>
+        </div>
+      </div>
+      <div class="form-section-title">初始变体（可选）</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>规格</label>
+          <input type="text" id="add-size" placeholder="例如：500ml">
+        </div>
+        <div class="form-group">
+          <label>整件数量（个/件）</label>
+          <input type="number" id="add-case-size" value="1" min="1">
+        </div>
+      </div>
+      <div class="form-row form-row-3">
+        <div class="form-group">
+          <label>整件进货价 (元)</label>
+          <input type="number" id="add-purchase-price" step="0.01" placeholder="0.00">
+        </div>
+        <div class="form-group">
+          <label>整件批发价 (元)</label>
           <input type="number" id="add-wholesale-price" step="0.01" placeholder="0.00">
         </div>
+        <div class="form-group">
+          <label>单件零售价 (元)</label>
+          <input type="number" id="add-retail-price" step="0.01" placeholder="0.00">
+        </div>
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>供应商</label>
-          <input type="text" id="add-supplier" placeholder="供应商名称">
-        </div>
-        <div class="form-group">
-          <label>别名（多个用逗号分隔）</label>
-          <input type="text" id="add-aliases" placeholder="例如：可乐,汽水,cola">
-        </div>
+      <div class="form-group">
+        <label>别名（多个用逗号分隔）</label>
+        <input type="text" id="add-aliases" placeholder="例如：可乐,汽水,cola">
       </div>
       <button type="submit" class="btn-primary btn-lg">确认添加</button>
     </form>
+  </section>
+
+  <!-- 分类管理 -->
+  <section id="tab-categories" class="tab-content">
+    <div class="page-header"><h2>分类管理</h2></div>
+    <div class="card-form">
+      <div class="inline-form" style="margin-bottom:16px">
+        <input type="text" id="new-category-name" placeholder="输入新分类名称" style="flex:1">
+        <button id="add-category-btn" class="btn-primary">添加分类</button>
+      </div>
+      <table>
+        <thead>
+          <tr><th>ID</th><th>分类名称</th><th>排序</th><th>操作</th></tr>
+        </thead>
+        <tbody id="category-tbody"></tbody>
+      </table>
+    </div>
   </section>
 
   <!-- 统计 -->
@@ -109,11 +146,12 @@
       </label>
     </div>
     <div id="stats-cards" class="stats-grid"></div>
+    <div class="stats-grid" id="category-distribution"></div>
     <div class="table-container">
       <h3>利润排行榜 Top 20</h3>
       <table id="profit-table">
         <thead>
-          <tr><th>排名</th><th>商品</th><th>零售价</th><th>最低批发价</th><th>利润</th><th>利润率</th></tr>
+          <tr><th>排名</th><th>商品</th><th>规格</th><th>零售价</th><th>单件成本</th><th>利润</th><th>利润率</th></tr>
         </thead>
         <tbody id="profit-tbody"></tbody>
       </table>
@@ -134,8 +172,8 @@
             <input type="text" id="edit-name" required>
           </div>
           <div class="form-group">
-            <label>零售价 (元)</label>
-            <input type="number" id="edit-retail-price" step="0.01">
+            <label>分类</label>
+            <select id="edit-category" class="form-select"></select>
           </div>
           <button type="submit" class="btn-primary">保存修改</button>
         </form>
@@ -150,17 +188,41 @@
         </div>
       </div>
 
-      <div class="card-form">
-        <h3>批发价格</h3>
-        <div id="wholesale-list"></div>
-        <div class="inline-form">
-          <input type="text" id="new-wp-supplier" placeholder="供应商">
-          <input type="number" id="new-wp-price" step="0.01" placeholder="批发价">
-          <button id="add-wp-btn" class="btn-primary btn-small">添加</button>
+      <div class="card-form" style="grid-column: 1 / -1;">
+        <h3>变体管理</h3>
+        <div id="variants-list"></div>
+        <div class="variant-add-form">
+          <div class="form-row form-row-4">
+            <div class="form-group">
+              <label>规格</label>
+              <input type="text" id="new-var-size" placeholder="如500ml">
+            </div>
+            <div class="form-group">
+              <label>整件数量</label>
+              <input type="number" id="new-var-case-size" value="1" min="1">
+            </div>
+            <div class="form-group">
+              <label>进货价</label>
+              <input type="number" id="new-var-purchase" step="0.01" placeholder="0.00">
+            </div>
+            <div class="form-group">
+              <label>批发价</label>
+              <input type="number" id="new-var-wholesale" step="0.01" placeholder="0.00">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>零售价</label>
+              <input type="number" id="new-var-retail" step="0.01" placeholder="0.00">
+            </div>
+            <div class="form-group" style="align-self:end">
+              <button id="add-variant-btn" class="btn-primary">添加变体</button>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="card-form">
+      <div class="card-form" style="grid-column: 1 / -1;">
         <h3>价格变动历史</h3>
         <div id="history-list"></div>
       </div>
