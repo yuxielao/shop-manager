@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>商品价格管理系统</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="brand-icon">&#x1F3EA;</span>
+      <span class="brand-text">店铺管理</span>
+    </div>
+    <nav class="top-tabs">
+      <button class="tab active" data-tab="products">&#x1F4E6; 商品列表</button>
+      <button class="tab" data-tab="add">&#x2795; 添加商品</button>
+      <button class="tab" data-tab="stats">&#x1F4CA; 统计面板</button>
+    </nav>
+    <label class="toggle-profit-label">
+      <input type="checkbox" id="toggle-profit">
+      <span class="toggle-track"><span class="toggle-icon">&#x1F441;</span></span>
+      显示利润
+    </label>
+  </div>
+</header>
+
+<main class="main-content">
+  <!-- 商品列表 -->
+  <section id="tab-products" class="tab-content active">
+    <div class="toolbar">
+      <div class="search-box">
+        <span class="search-icon">&#x1F50D;</span>
+        <input type="text" id="search-input" placeholder="搜索商品名或别名...">
+      </div>
+      <button id="search-btn" class="btn-primary">搜索</button>
+    </div>
+
+    <div id="search-results" class="search-results hidden">
+      <div class="search-header">
+        <h3>搜索结果</h3>
+        <button class="btn-small btn-clear" onclick="clearSearch()">清除</button>
+      </div>
+      <div id="search-list"></div>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>商品名称</th>
+            <th>零售价</th>
+            <th>最低批发价</th>
+            <th>利润</th>
+            <th>别名</th>
+            <th>更新时间</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="product-tbody"></tbody>
+      </table>
+    </div>
+    <div class="pagination" id="pagination"></div>
+  </section>
+
+  <!-- 添加商品 -->
+  <section id="tab-add" class="tab-content">
+    <div class="page-header"><h2>添加新商品</h2></div>
+    <form id="add-product-form" class="card-form">
+      <div class="form-group">
+        <label>商品名称</label>
+        <input type="text" id="add-name" required placeholder="例如：可口可乐">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>零售价 (元)</label>
+          <input type="number" id="add-retail-price" step="0.01" placeholder="0.00">
+        </div>
+        <div class="form-group">
+          <label>批发价 (元)</label>
+          <input type="number" id="add-wholesale-price" step="0.01" placeholder="0.00">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>供应商</label>
+          <input type="text" id="add-supplier" placeholder="供应商名称">
+        </div>
+        <div class="form-group">
+          <label>别名（多个用逗号分隔）</label>
+          <input type="text" id="add-aliases" placeholder="例如：可乐,汽水,cola">
+        </div>
+      </div>
+      <button type="submit" class="btn-primary btn-lg">确认添加</button>
+    </form>
+  </section>
+
+  <!-- 统计 -->
+  <section id="tab-stats" class="tab-content">
+    <div class="page-header">
+      <h2>统计面板</h2>
+      <label class="toggle-profit-label">
+        <input type="checkbox" id="toggle-profit-stats" checked>
+        <span class="toggle-track"><span class="toggle-icon">&#x1F441;</span></span>
+        显示利润
+      </label>
+    </div>
+    <div id="stats-cards" class="stats-grid"></div>
+    <div class="table-container">
+      <h3>利润排行榜 Top 20</h3>
+      <table id="profit-table">
+        <thead>
+          <tr><th>排名</th><th>商品</th><th>零售价</th><th>最低批发价</th><th>利润</th><th>利润率</th></tr>
+        </thead>
+        <tbody id="profit-tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 商品详情 -->
+  <section id="tab-detail" class="tab-content">
+    <button id="back-btn" class="btn-back">&#x2190; 返回列表</button>
+    <div class="page-header"><h2 id="detail-title">商品详情</h2></div>
+
+    <div class="detail-grid">
+      <div class="card-form">
+        <h3>基本信息</h3>
+        <form id="edit-product-form">
+          <div class="form-group">
+            <label>商品名称</label>
+            <input type="text" id="edit-name" required>
+          </div>
+          <div class="form-group">
+            <label>零售价 (元)</label>
+            <input type="number" id="edit-retail-price" step="0.01">
+          </div>
+          <button type="submit" class="btn-primary">保存修改</button>
+        </form>
+      </div>
+
+      <div class="card-form">
+        <h3>别名管理</h3>
+        <div id="aliases-list"></div>
+        <div class="inline-form">
+          <input type="text" id="new-alias-input" placeholder="输入新别名">
+          <button id="add-alias-btn" class="btn-primary btn-small">添加</button>
+        </div>
+      </div>
+
+      <div class="card-form">
+        <h3>批发价格</h3>
+        <div id="wholesale-list"></div>
+        <div class="inline-form">
+          <input type="text" id="new-wp-supplier" placeholder="供应商">
+          <input type="number" id="new-wp-price" step="0.01" placeholder="批发价">
+          <button id="add-wp-btn" class="btn-primary btn-small">添加</button>
+        </div>
+      </div>
+
+      <div class="card-form">
+        <h3>价格变动历史</h3>
+        <div id="history-list"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="toast-container"></div>
+
+<div id="modal-overlay" class="modal-overlay hidden">
+  <div class="modal">
+    <p id="modal-message"></p>
+    <div class="modal-actions">
+      <button id="modal-cancel" class="btn-cancel">取消</button>
+      <button id="modal-confirm" class="btn-danger">确认删除</button>
+    </div>
+  </div>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
